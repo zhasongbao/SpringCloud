@@ -22,6 +22,7 @@
         <module>producer-jpa</module>
         <module>consumer-feign</module>
         <module>consumer-ribbon</module>
+        <module>gen-service</module>
     </modules>
 
     <dependencies>
