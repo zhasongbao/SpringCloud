@@ -3,7 +3,6 @@ services:
   zipkin-server:
     image: openzipkin/zipkin
     container_name: sc-zipkin-server
-    restart: always
     volumes:
       - ../data/zipkin-server/logs:/var/logs
     networks:
@@ -23,7 +22,6 @@ services:
   elasticsearch:
     image: elasticsearch:5.6-alpine
     container_name: sc-elasticsearch
-    restart: always
     environment:
       - cluster.name=elasticsearch
       - bootstrap.memory_lock=true
@@ -44,6 +42,15 @@ services:
       - 9200:9200
       - 9300:9300
 
+  sentinel-dashboard:
+    image: cike/sentinel-dashboard-docker:latest
+    container_name: sc-sentinel-dashboard
+    networks:
+      - sc-net
+    ports:
+      - 8021:8021
+    env_file: .env
+
   skywalking-oap:
     image: wutang/skywalking-oap:6.1.0
     container_name: skywalking-oap
@@ -53,7 +60,6 @@ services:
       - elasticsearch
     links:
       - elasticsearch
-    restart: always
     ports:
       - 11800:11800
       - 12800:12800
@@ -69,7 +75,6 @@ services:
       - skywalking-oap
     links:
       - skywalking-oap
-    restart: always
     ports:
       - 8080:8080
     environment:
@@ -78,7 +83,6 @@ services:
   kibana:
     image: kibana:5.6.14
     container_name: sc-kibana
-    restart: always
     volumes:
       - ../data/kibana/logs:/var/logs/kibana
       - ./devops/kibana.yml:/etc/kibana/kibana.yml
@@ -92,7 +96,6 @@ services:
   grafana:
     image: grafana/grafana
     container_name: sc-grafana
-    restart: always
     volumes:
       - ../data/grafana/logs:/var/logs/grafana
     networks:
