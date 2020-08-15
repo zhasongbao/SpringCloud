@@ -1,0 +1,43 @@
+import request from '@/utils/request'
+
+const api = {
+  ${tableInfo.lowerClassName}: '/${tableInfo.vueModalName}/${tableInfo.lowerClassName}'
+}
+
+export function query${tableInfo.className}(query) {
+  return request({
+    url: api.${tableInfo.lowerClassName} + '/page',
+    method: 'get',
+    params: query
+  })
+}
+
+export function delete${tableInfo.className}(id) {
+  return request({
+    url: api.${tableInfo.lowerClassName} + '/id/' + id,
+    method: 'delete'
+  })
+}
+
+export function get${tableInfo.className}(id) {
+  return request({
+    url: api.${tableInfo.lowerClassName} + '/id/' + id,
+    method: 'get'
+  })
+}
+export function update${tableInfo.className}(obj) {
+  return request({
+    url: api.${tableInfo.lowerClassName},
+    method: 'put',
+    data: obj
+  })
+}
+export function create${tableInfo.className}(obj) {
+  return request({
+    url: api.${tableInfo.lowerClassName},
+    method: 'post',
+    data: obj
+  })
+}
+
+export const ${tableInfo.lowerClassName}Export = api.${tableInfo.lowerClassName} + '/export'

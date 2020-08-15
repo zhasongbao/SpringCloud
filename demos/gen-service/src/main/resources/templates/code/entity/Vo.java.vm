@@ -1,0 +1,28 @@
+package ${tableInfo.packageName}.vo;
+
+import ${tableInfo.poPackageName}.po.${tableInfo.className};
+
+import com.springboot.cloud.common.web.entity.vo.BaseVo;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.beans.BeanUtils;
+
+import java.util.Date;
+import java.util.Set;
+
+
+
+/**
+ * @author $tableInfo.authorName
+ */
+@Data
+public class ${tableInfo.className}Vo extends BaseVo<${tableInfo.className}>{
+
+    #foreach ($column in ${tableInfo.columnInfo})
+    /**
+     * $!{column.columnComment}
+     */
+    private $column.attrType $column.attrName;
+    #end
+
+}

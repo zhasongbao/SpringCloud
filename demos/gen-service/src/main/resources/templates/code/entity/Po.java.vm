@@ -1,0 +1,51 @@
+package ${tableInfo.packageName}.po;
+
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.springboot.cloud.common.web.entity.po.BasePo;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+#if(${hasDate})
+import java.util.Date;
+#end
+
+#if(${hasBigDecimal})
+import java.math.BigDecimal;
+#end
+
+
+/**
+ * ${tableInfo.tableComment}
+ *
+ * @author ${tableInfo.authorName}
+ * @date ${datetime}
+ */
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@TableName("${tableInfo.tableName}")
+
+public class ${tableInfo.className} extends BasePo {
+
+    /**
+     * $!tableInfo.pk.columnComment
+     */
+    @TableId(value = "$!tableInfo.pk.columnName", type = IdType.AUTO)
+    private $!tableInfo.pk.attrType $!tableInfo.pk.attrName;
+
+    #foreach ($column in ${tableInfo.columnInfo})
+        #if($!tableInfo.pk.attrName !=  $column.attrName)
+        /**
+         * $!{column.columnComment}
+         */
+        private $column.attrType $column.attrName;
+        #end
+    #end
+
+}

@@ -1,0 +1,18 @@
+package ${tableInfo.controllerPackageName};
+
+import com.springboot.cloud.common.base.controller.BaseController;
+import ${tableInfo.packageName}.${tableInfo.className};
+import ${tableInfo.queryPackageName}.${tableInfo.className}Query;
+import ${tableInfo.servicePackageName}.${tableInfo.className}Service;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * @author $tableInfo.authorName
+ */
+@Slf4j
+@RestController
+@RequestMapping("/${tableInfo.lowerClassName}")
+public class $!{tableInfo.className}Controller extends BaseController<$!{tableInfo.className}Service, $!{tableInfo.className}Query, $!{tableInfo.className}, $!tableInfo.pk.attrType> {
+}

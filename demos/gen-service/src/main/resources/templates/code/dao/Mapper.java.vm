@@ -1,0 +1,18 @@
+package ${tableInfo.mapperPackageName};
+
+import ${tableInfo.packageName}.po.${tableInfo.className};
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
+import org.springframework.stereotype.Repository;
+
+
+/**
+ * @author $tableInfo.authorName
+ */
+@Repository
+@Mapper
+
+public interface ${tableInfo.className}Mapper extends BaseMapper<$!{tableInfo.className}>{
+
+}

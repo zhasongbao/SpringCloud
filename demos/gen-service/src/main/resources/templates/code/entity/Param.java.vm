@@ -1,0 +1,32 @@
+package ${tableInfo.packageName}.param;
+
+import com.springboot.cloud.common.web.entity.param.BaseParam;
+import ${tableInfo.packageName}.po.${tableInfo.className};
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+#if(${hasDate})
+import java.util.Date;
+#end
+
+#if(${hasBigDecimal})
+import java.math.BigDecimal;
+#end
+
+
+/**
+ * ${tableInfo.tableComment}
+ * 查询参数
+ * @author ${tableInfo.authorName}
+ * @date ${datetime}
+ */
+
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+
+public class ${tableInfo.className}Param extends BaseParam<${tableInfo.className}>  {
+
+}

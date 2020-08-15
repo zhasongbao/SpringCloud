@@ -1,0 +1,17 @@
+package ${tableInfo.servicePackageName}.impl;
+
+import com.springboot.cloud.common.base.service.impl.BaseServiceImpl;
+import ${tableInfo.mapperPackageName}.${tableInfo.className}Mapper;
+import ${tableInfo.packageName}.po.${tableInfo.className};
+import ${tableInfo.servicePackageName}.I${tableInfo.className}Service;
+import org.springframework.stereotype.Service;
+
+
+/**
+ * @author $tableInfo.authorName
+ */
+@Service
+@Slf4j
+public class ${tableInfo.className}Service extends ServiceImpl<$!{tableInfo.className}Mapper, $!{tableInfo.className}> implements I$!{tableInfo.className}Service  {
+}
+

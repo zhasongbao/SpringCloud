@@ -1,0 +1,38 @@
+package ${tableInfo.packageName}.form;
+
+import ${tableInfo.packageName}.po.${tableInfo.className};
+import com.springboot.cloud.common.web.entity.form.BaseForm;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import org.hibernate.validator.constraints.Length;
+
+import javax.validation.constraints.NotBlank;
+import java.util.Set;
+
+
+/**
+ * @author $tableInfo.authorName
+ *
+ */
+
+@ApiModel
+@Data
+public class ${tableInfo.className}Form extends BaseForm<${tableInfo.className}> {
+
+
+
+    #foreach ($column in ${tableInfo.columnInfo})
+
+        /**
+         * $!{column.columnComment}
+         */
+        @ApiModelProperty(value = "$column.columnComment")
+        ## @NotBlank(message = "不能为空")
+        ## @Length(min = 3, max = 20, message = "用户名长度在3到20个字符")
+        private $column.attrType $column.attrName;
+    #end
+
+}
+
+
