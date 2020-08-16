@@ -23,6 +23,7 @@ public class UserVo extends BaseVo<User> {
     private String description;
     private String deleted;
     private Set<String> roleIds;
+    private Set<String> permissions;
     private String createdBy;
     private String updatedBy;
     private Date createdTime;

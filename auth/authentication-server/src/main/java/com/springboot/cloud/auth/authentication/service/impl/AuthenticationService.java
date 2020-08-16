@@ -30,13 +30,21 @@ public class AuthenticationService implements IAuthenticationService {
      */
     @Override
     public boolean decide(HttpServletRequest authRequest) {
-        log.debug("正在访问的url是:{}，method:{}", authRequest.getServletPath(), authRequest.getMethod());
+        log.debug("正在访问的url是:{}，method:{}，ip{}，port{}",
+                authRequest.getServletPath(),
+                authRequest.getMethod(),
+                authRequest.getRemoteHost(),
+                authRequest.getRemotePort());
         //获取用户认证信息
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.debug("authentication:",authentication.toString());
         //获取此url，method访问对应的权限资源信息
         ConfigAttribute urlConfigAttribute = resourceService.findConfigAttributesByUrl(authRequest);
-        if (NONEXISTENT_URL.equals(urlConfigAttribute.getAttribute()))
+        log.debug("urlConfigAttribute.toString()");
+        log.debug(urlConfigAttribute.toString());
+        if (NONEXISTENT_URL.equals(urlConfigAttribute.getAttribute())) {
             log.debug("url未在资源池中找到，拒绝访问");
+        }
         //获取此访问用户所有角色拥有的权限资源
         Set<Resource> userResources = findResourcesByUsername(authentication.getName());
         //用户拥有权限资源 与 url要求的资源进行对比

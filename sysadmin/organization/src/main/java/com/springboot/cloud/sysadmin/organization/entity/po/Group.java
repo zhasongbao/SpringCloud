@@ -18,5 +18,5 @@ public class Group extends BasePo {
     private String parentId;
     private String description;
     @TableLogic
-    private String deleted = "N";
+    private String deleted = "0";
 }

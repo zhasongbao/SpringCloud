@@ -63,7 +63,12 @@ public class UserController {
     @GetMapping
     public Result query(@RequestParam String uniqueId) {
         log.debug("query with username or mobile:{}", uniqueId);
-        return Result.success(userService.getByUniqueId(uniqueId));
+        log.debug("=====注备查询用户信息======");
+        User user = userService.getByUniqueId(uniqueId);
+        log.debug("=====注备查询用户信息返回值======");
+        log.debug(user.toString());
+
+        return Result.success(user);
     }
 
     @ApiOperation(value = "搜索用户", notes = "根据条件查询用户信息")

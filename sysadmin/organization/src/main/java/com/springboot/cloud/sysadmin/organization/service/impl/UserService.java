@@ -9,7 +9,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.springboot.cloud.sysadmin.organization.dao.UserMapper;
 import com.springboot.cloud.sysadmin.organization.entity.param.UserQueryParam;
-import com.springboot.cloud.sysadmin.organization.entity.po.Resource;
 import com.springboot.cloud.sysadmin.organization.entity.po.User;
 import com.springboot.cloud.sysadmin.organization.entity.vo.UserVo;
 import com.springboot.cloud.sysadmin.organization.exception.UserNotFoundException;
@@ -26,10 +25,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -88,11 +85,9 @@ public class UserService extends ServiceImpl<UserMapper, User> implements IUserS
             throw new UserNotFoundException("user not found with id:" + id);
         }
         user.setRoleIds(userRoleService.queryByUserId(user.getId()));
-        List<Resource> resources = resourceService.query(user.getUsername());
 
-        //根据资源列表查询出所有资源对象
-        Set<String> resourceCodes = resources.stream().map(resource -> resource.getCode()).collect(Collectors.toSet());
-        user.setPermissions(resourceCodes);
+        //根据用户ID列表查询出所有资源对象
+        user.setPermissions(resourceService.queryResourceIds(user.getId()));
 
         return new UserVo(user);
     }
@@ -108,11 +103,12 @@ public class UserService extends ServiceImpl<UserMapper, User> implements IUserS
             throw new UserNotFoundException("user not found with uniqueId:" + uniqueId);
         }
 
+        //根据用户ID列表查询出所有角色对象
         user.setRoleIds(userRoleService.queryByUserId(user.getId()));
-        List<Resource> resources = resourceService.query(user.getUsername());
 
-        //根据资源列表查询出所有资源对象
-        Set<String> resourceCodes = resources.stream().map(resource -> resource.getCode()).collect(Collectors.toSet());
+        //根据用户ID列表查询出所有资源对象
+        Set<String> resourceCodes =resourceService.queryPermissionsByRoleIds(user.getRoleIds());
+
         user.setPermissions(resourceCodes);
 
         return user;

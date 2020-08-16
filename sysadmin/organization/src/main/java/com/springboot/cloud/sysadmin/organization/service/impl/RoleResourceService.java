@@ -23,8 +23,9 @@ public class RoleResourceService extends ServiceImpl<RoleResourceMapper, RoleRes
     @Override
     @Transactional
     public boolean saveBatch(String roleId, Set<String> resourceIds) {
-        if (CollectionUtils.isEmpty(resourceIds))
+        if (CollectionUtils.isEmpty(resourceIds)) {
             return false;
+        }
         removeByRoleId(roleId);
         Set<RoleResource> userRoles = resourceIds.stream().map(resourceId -> new RoleResource(roleId, resourceId)).collect(Collectors.toSet());
         return saveBatch(userRoles);

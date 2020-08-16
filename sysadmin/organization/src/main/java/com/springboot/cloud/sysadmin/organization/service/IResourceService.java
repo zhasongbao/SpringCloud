@@ -2,10 +2,12 @@ package com.springboot.cloud.sysadmin.organization.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.springboot.cloud.sysadmin.organization.entity.dto.SysResourceTree;
 import com.springboot.cloud.sysadmin.organization.entity.param.ResourceQueryParam;
 import com.springboot.cloud.sysadmin.organization.entity.po.Resource;
 
 import java.util.List;
+import java.util.Set;
 
 public interface IResourceService {
     /**
@@ -46,6 +48,20 @@ public interface IResourceService {
     List<Resource> query(String username);
 
     /**
+     * 根据userId查询角色拥有的资源
+     *
+     * @return
+     */
+    Set<String> queryResourceIds(String userId);
+
+    /**
+     * 根据用户角色查询拥有的资源
+     *
+     * @return
+     */
+    Set<String> queryPermissionsByRoleIds(Set<String> roleIds);
+
+    /**
      * 更新资源信息
      *
      * @param resource
@@ -58,4 +74,17 @@ public interface IResourceService {
      * @param id
      */
     boolean delete(String id);
+
+    /**
+     * 使用角色列表查询菜单
+     * @param roleCodes
+     * @return
+     */
+    List<SysResourceTree> getMenuTreeByRoleCodes(Set<String> roleCodes);
+
+    /**
+     * 查询所有的资源
+     * @return
+     */
+    List<SysResourceTree> getAllResourceTree();
 }

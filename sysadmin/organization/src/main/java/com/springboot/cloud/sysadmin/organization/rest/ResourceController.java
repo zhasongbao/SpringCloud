@@ -1,17 +1,22 @@
 package com.springboot.cloud.sysadmin.organization.rest;
 
 import com.springboot.cloud.common.core.entity.vo.Result;
+import com.springboot.cloud.common.core.util.UserContextHolder;
+import com.springboot.cloud.sysadmin.organization.entity.dto.SysResourceTree;
 import com.springboot.cloud.sysadmin.organization.entity.form.ResourceForm;
 import com.springboot.cloud.sysadmin.organization.entity.form.ResourceQueryForm;
 import com.springboot.cloud.sysadmin.organization.entity.param.ResourceQueryParam;
 import com.springboot.cloud.sysadmin.organization.entity.po.Resource;
 import com.springboot.cloud.sysadmin.organization.service.IResourceService;
+import com.springboot.cloud.sysadmin.organization.service.IUserRoleService;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/resource")
@@ -21,6 +26,9 @@ public class ResourceController {
 
     @Autowired
     private IResourceService resourceService;
+
+    @Autowired
+    private IUserRoleService userRoleService;
 
     @ApiOperation(value = "新增资源", notes = "新增一个资源")
     @ApiImplicitParam(name = "resourceForm", value = "新增资源form表单", required = true, dataType = "ResourceForm")
@@ -65,7 +73,12 @@ public class ResourceController {
     @GetMapping(value = "/user/{username}")
     public Result queryByUsername(@PathVariable String username) {
         log.debug("query with username:{}", username);
-        return Result.success(resourceService.query(username));
+        log.debug("===注备查询资源===");
+        List<Resource> resources = resourceService.query(username);
+        log.debug("===注备查询资源返回===");
+        log.debug(resources.toString());
+
+        return Result.success(resources);
     }
 
     @ApiOperation(value = "查询所有资源", notes = "查询所有资源信息")
@@ -87,4 +100,30 @@ public class ResourceController {
         log.debug("query with name:{}", resourceQueryForm);
         return Result.success(resourceService.query(resourceQueryForm.getPage(), resourceQueryForm.toParam(ResourceQueryParam.class)));
     }
+
+
+    /**
+     * 获取当前用户的菜单树
+     * @return
+     */
+    @ApiOperation(value = "获取当前用户的菜单树", notes = "根据token查询当前用户权限的菜单树", httpMethod = "GET")
+    @GetMapping("/menu/tree")
+    public Result<List<SysResourceTree>> getMenuTree(){
+        String username = UserContextHolder.getInstance().getUsername();
+        Set<String> roleCodes = userRoleService.queryByUserId(username);
+        return new Result<>(resourceService.getMenuTreeByRoleCodes(roleCodes));
+    }
+
+    /**
+     * 获取所有的资源树
+     * @return
+     */
+    @GetMapping("/tree")
+    @ApiOperation(value = "获取所有菜单的树", notes = "获取所有菜单的树", httpMethod = "GET")
+    public Result<List<SysResourceTree>> getAllResourceTree(){
+        log.debug("@ApiOperation(value = \"获取所有菜单的树\", notes = \"获取所有菜单的树\", httpMethod = \"GET\")");
+        return new Result<>(resourceService.getAllResourceTree());
+    }
+
+
 }

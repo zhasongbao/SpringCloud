@@ -6,8 +6,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.springboot.cloud.common.core.constants.CommonConstants;
+import com.springboot.cloud.common.core.enums.DataStatusEnum;
+import com.springboot.cloud.common.core.enums.ResourceTypeEnum;
 import com.springboot.cloud.sysadmin.organization.config.BusConfig;
 import com.springboot.cloud.sysadmin.organization.dao.ResourceMapper;
+import com.springboot.cloud.sysadmin.organization.dao.UserMapper;
+import com.springboot.cloud.sysadmin.organization.entity.dto.SysResourceTree;
 import com.springboot.cloud.sysadmin.organization.entity.param.ResourceQueryParam;
 import com.springboot.cloud.sysadmin.organization.entity.po.Resource;
 import com.springboot.cloud.sysadmin.organization.entity.po.Role;
@@ -18,11 +23,13 @@ import com.springboot.cloud.sysadmin.organization.service.IResourceService;
 import com.springboot.cloud.sysadmin.organization.service.IRoleResourceService;
 import com.springboot.cloud.sysadmin.organization.service.IRoleService;
 import com.springboot.cloud.sysadmin.organization.service.IUserService;
+import com.springboot.cloud.sysadmin.organization.util.TreeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,6 +49,9 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> imple
 
     @Autowired
     private EventSender eventSender;
+
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     public boolean add(Resource resource) {
@@ -78,16 +88,9 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> imple
     }
 
     @Override
-    public List<Resource> getAll() {
-        return this.list();
-    }
-
-    @Override
-    @Cached(name = "resource4user::", key = "#username", cacheType = CacheType.BOTH)
-    public List<Resource> query(String username) {
+    public Set<String> queryResourceIds(String userId) {
         //根据用户名查询到用户所拥有的角色
-        User user = userService.getByUniqueId(username);
-        List<Role> roles = roleService.query(user.getId());
+        List<Role> roles = roleService.query(userId);
         //提取用户所拥有角色id列表
         Set<String> roleIds = roles.stream().map(role -> role.getId()).collect(Collectors.toSet());
         //根据角色列表查询到角色的资源的关联关系
@@ -95,6 +98,92 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> imple
         //根据资源列表查询出所有资源对象
         Set<String> resourceIds = roleResources.stream().map(roleResource -> roleResource.getResourceId()).collect(Collectors.toSet());
         //根据resourceId列表查询出resource对象
+        return resourceIds;
+    }
+
+    @Override
+    public List<Resource> getAll() {
+        return this.list();
+    }
+
+    @Override
+    @Cached(name = "resource4user::", key = "#username", cacheType = CacheType.BOTH)
+    public List<Resource> query(String username) {
+        log.debug(username);
+        //根据用户名查询到用户所拥有的角色
+        User user = userService.getByUniqueId(username);
+        log.debug(user.toString());
+
+        List<Role> roles = roleService.query(user.getId());
+        log.debug(roles.toString());
+
+        //提取用户所拥有角色id列表
+        Set<String> roleIds = roles.stream().map(role -> role.getId()).collect(Collectors.toSet());
+        log.debug(roleIds.toString());
+
+        //根据角色列表查询到角色的资源的关联关系
+        List<RoleResource> roleResources = roleResourceService.queryByRoleIds(roleIds);
+        log.debug(roleResources.toString());
+
+        //根据资源列表查询出所有资源对象
+        Set<String> resourceIds = roleResources.stream().map(roleResource -> roleResource.getResourceId()).collect(Collectors.toSet());
+
+        //根据resourceId列表查询出resource对象
         return (List<Resource>) this.listByIds(resourceIds);
+
+    }
+
+    /**
+     * 使用角色列表查询菜单
+     * @param roleCodes
+     * @return
+     */
+    @Override
+    public List<SysResourceTree> getMenuTreeByRoleCodes(Set<String> roleCodes){
+        // 1、首选获取所有角色的资源集合
+        //根据角色列表查询到角色的资源的关联关系
+        List<RoleResource> roleResources = roleResourceService.queryByRoleIds(roleCodes);
+        //根据资源列表查询出所有资源对象
+        Set<String> resourceIds = roleResources.stream().map(roleResource -> roleResource.getResourceId()).collect(Collectors.toSet());
+        //根据resourceId列表查询出resource对象
+        List<Resource> resources = (List<Resource>) this.listByIds(resourceIds);
+
+
+        // 2、找出类型为菜单类型的 然后排序
+        List<Resource> newSysResource = resources.stream()
+                .filter(resource -> ResourceTypeEnum.MENU.getCode().equals(resource.getType()))
+                .sorted(Comparator.comparingInt(Resource::getSort))
+                .collect(Collectors.toList());
+        // 3、构建树
+        return TreeUtil.list2Tree(newSysResource, CommonConstants.TREE_ROOT);
+    }
+
+    @Override
+    public List<SysResourceTree> getAllResourceTree() {
+
+        QueryWrapper<Resource> query  = new QueryWrapper();
+        query.lambda().eq(Resource::getDeleted, DataStatusEnum.NORMAL.getCode());
+        List<Resource> resources = this.baseMapper.selectList(query);
+        log.debug("resources:" + resources.toString());
+        return TreeUtil.list2Tree(resources, CommonConstants.TREE_ROOT);
+    }
+
+    @Override
+    public Set<String> queryPermissionsByRoleIds(Set<String> roleIds){
+        log.debug("========queryResourceByRoleIds=============");
+        //根据角色列表查询到角色的资源的关联关系
+        List<RoleResource> roleResources = roleResourceService.queryByRoleIds(roleIds);
+        log.debug(roleResources.toString());
+
+        //根据资源列表查询出所有资源对象
+        Set<String> resourceIds = roleResources.stream().map(roleResource -> roleResource.getResourceId()).collect(Collectors.toSet());
+        //根据resourceId列表查询出resource对象
+        List<Resource> resources = (List<Resource>) this.listByIds(resourceIds);
+
+        Set<String> permissions = resources.stream().map(resource -> resource.getCode()).collect(Collectors.toSet());
+
+        log.debug("========queryResourceByRoleIds=============");
+
+        return permissions;
     }
 }

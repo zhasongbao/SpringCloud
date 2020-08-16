@@ -27,7 +27,9 @@ public class AuthenticationController {
     @ApiResponses(@ApiResponse(code = 200, message = "处理成功", response = Result.class))
     @PostMapping(value = "/auth/permission")
     public Result decide(@RequestParam String url, @RequestParam String method, HttpServletRequest request) {
+        log.debug("权限验证->url:{},method:{}",url,method);
         boolean decide = authenticationService.decide(new HttpServletRequestAuthWrapper(request, url, method));
+        log.debug("权限验证结果->{}",decide);
         return Result.success(decide);
     }
 

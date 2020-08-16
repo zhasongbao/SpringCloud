@@ -31,5 +31,5 @@ public class User extends BasePo {
     @TableField(exist = false)
     private Set<String> permissions;
     @TableLogic
-    private String deleted = "N";
+    private String deleted = "0";
 }
